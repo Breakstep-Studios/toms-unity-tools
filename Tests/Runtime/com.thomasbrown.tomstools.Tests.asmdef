@@ -1,0 +1,16 @@
+{
+    "name": "com.thomasbrown.tomstools.Tests",
+    "references": [
+        "com.thomasbrown.tomstools"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

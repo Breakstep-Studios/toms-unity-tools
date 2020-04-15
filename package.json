@@ -1,0 +1,13 @@
+{
+    "name": "com.thomasbrown.tools",
+    "version": "1.0.0",
+    "displayName": "Toms Tools",
+    "description": "Tools library for Unity that includes tons of helper classes & methods",
+    "unity": "2018.4",
+    "keywords": ["library","tools","utility"],
+    "author": {
+        "name": "Thomas Brown",
+        "email": "thsbrown1@gmail.com",
+        "url": "https://twitter.com/meatloaf1024"
+    }
+}

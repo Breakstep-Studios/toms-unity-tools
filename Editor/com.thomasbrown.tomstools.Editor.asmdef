@@ -1,0 +1,16 @@
+{
+    "name": "com.thomasbrown.tomstools.Editor",
+    "references": [
+        "com.thomasbrown.tomstools"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

@@ -1,0 +1,19 @@
+{
+    "name": "com.thomasbrown.tomstools.Editor.Tests",
+    "references": [
+        "com.thomasbrown.tomstools",
+        "com.thomasbrown.tomstools.Editor"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
