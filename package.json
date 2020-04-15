@@ -5,6 +5,9 @@
     "description": "Tools library for Unity that includes tons of helper classes & methods",
     "unity": "2018.4",
     "keywords": ["library","tools","utility"],
+    "dependencies": {
+        "com.unity.textmeshpro": "1.4.1"
+    },
     "author": {
         "name": "Thomas Brown",
         "email": "thsbrown1@gmail.com",

@@ -1,6 +1,10 @@
 {
     "name": "com.thomasbrown.tomstools",
-    "references": [],
+    "references": [
+        "DOTweenPro.Scripts",
+        "DOTween.Modules",
+        "Unity.TextMeshPro"
+    ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
