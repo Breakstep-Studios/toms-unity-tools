@@ -7,14 +7,24 @@ using UnityEngine;
 /// <para>In some ways seen as a better alternative to <see cref="Singleton{T}"/></para>
 /// </summary>
 /// <typeparam name="T">The Monobehaviour type of this instance</typeparam>
-public class MonoService<T> : MonoBehaviour where T : MonoBehaviour {
+public abstract class MonoService<T> : MonoBehaviour where T : MonoBehaviour {
     
+    private void Awake()
+    {
+        var attribute = Attribute.GetCustomAttribute(typeof(T), typeof(MonoServiceAttribute)) as MonoServiceAttribute;
+        if (!attribute?.destroyInstanceOnLevelLoad ?? false) {
+            DontDestroyOnLoad(this);
+        }      
+    }
+
     /// <summary>
-    /// Instantiate the service prefab and get a reference to it's component type
+    /// Instantiate the service and get a reference to it's component type
     /// </summary>
     /// <returns>The component on our newly instantiate service gameobject</returns>
-    public T GetInstance() {
-        var instance = Instantiate(this, Vector3.zero, Quaternion.identity).GetComponent<T>();
+    public static T CreateInstance()
+    {
+        var instance = new GameObject().AddComponent<T>();
+        instance.transform.position = Vector3.zero;
         instance.name = typeof(T).Name;
         
         var attribute = Attribute.GetCustomAttribute(typeof(T), typeof(MonoServiceAttribute)) as MonoServiceAttribute;
