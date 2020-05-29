@@ -2,6 +2,7 @@
 using UnityEngine;
 
 namespace StudioName.Runtime.ExtensionAndHelpers {
+    
     /// <summary>
     /// Extends the <see cref="UnityEngine.Camera"/> class with additional functionality
     /// </summary>
