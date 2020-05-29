@@ -19,7 +19,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             Vector3 objectPosition)
         {
             var worldPositionOnCanvas = WorldToUIPoint(objectCamera, targetCanvas, objectPosition);
-            return WorldToAnchoredPosition(targetCanvas, worldPositionOnCanvas);
+            return WorldToViewportAnchoredPosition(targetCanvas, worldPositionOnCanvas);
         }
         
         /// <summary>
@@ -52,7 +52,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         /// <param name="targetCanvas">The canvas where the object point should lie on</param>
         /// <param name="objectPosition">The object position we want to convert</param>
         /// <returns>The <see cref="objectPosition"/> in world space converted for use with anchoredPosition</returns>
-        public static Vector3 WorldToAnchoredPosition(Canvas targetCanvas, Vector3 objectPosition)
+        public static Vector3 WorldToViewportAnchoredPosition(Canvas targetCanvas, Vector3 objectPosition)
         {
             var canvasRectTransform = targetCanvas.GetComponent<RectTransform>();
      
