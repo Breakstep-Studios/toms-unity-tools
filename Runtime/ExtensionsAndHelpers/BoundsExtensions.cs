@@ -17,6 +17,40 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             }
             return bounds.Contains(point);
         }
+
+        /// <summary>
+        /// Converts the current presumed screen space bounds to world space bounds
+        /// </summary>
+        /// <param name="bounds">The presumed screen space bounds</param>
+        /// <param name="camera">The camera used for the transformation</param>
+        /// <returns>The bounds now in world space</returns>
+        public static Bounds ConvertToWorldBounds(this Bounds bounds, Camera camera)
+        {
+            var topRightWorldPosition =
+                camera.ScreenToWorldPoint(bounds.center + bounds.extents);
+            var bottomLeftWorldPosition =
+                camera.ScreenToWorldPoint(bounds.center - bounds.extents);
+            var worldPositionBoundsSize = topRightWorldPosition - bottomLeftWorldPosition; 
+            return new Bounds(bottomLeftWorldPosition + worldPositionBoundsSize / 2,
+                worldPositionBoundsSize);
+        }
+        
+        /// <summary>
+        /// Converts the current presumed world space bounds to screen space bounds
+        /// </summary>
+        /// <param name="bounds">The presumed world space bounds</param>
+        /// <param name="camera">The camera used for the transformation</param>
+        /// <returns>The bounds now in screen space</returns>
+        public static Bounds ConvertToScreenBounds(this Bounds bounds, Camera camera)
+        {
+            var topRightWorldPosition =
+                camera.WorldToScreenPoint(bounds.center + bounds.extents);
+            var bottomLeftWorldPosition =
+                camera.WorldToScreenPoint(bounds.center - bounds.extents);
+            var worldPositionBoundsSize = topRightWorldPosition - bottomLeftWorldPosition; 
+            return new Bounds(bottomLeftWorldPosition + worldPositionBoundsSize / 2,
+                worldPositionBoundsSize);
+        }
         
     }
 }
