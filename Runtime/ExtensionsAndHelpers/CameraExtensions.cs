@@ -31,14 +31,15 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         }
 
         /// <summary>
-        /// Returns the camera bounds that are being used given the camera <see cref="Camera.GateFitMode"/> setting
+        /// Returns the camera bounds at the given <see cref="distanceToDesiredBounds"/> and a field of view.
+        /// <para>This method will also account for physical camera properties including <see cref="Camera.GateFitMode"/> and sensor size.</para>
         /// </summary>
         /// <param name="camera">Camera to calculate from</param>
         /// <param name="distanceToDesiredBounds">The distance to the desired orthographic size that we will fetch</param>
         /// <param name="fieldOfView">if input will utilize this field of view for bounds calculation rather then current camera fov</param>
         /// <param name="boundsCenter">The point that will be considered the center of the returned bounds in world space otherwise the current camera position</param>
         /// <returns>The camera bounds at the desired position of our frustum given the gate fit setting</returns>
-        public static Bounds GetPhysicalCameraBoundsForGateFit(this Camera camera, float distanceToDesiredBounds,
+        public static Bounds GetPerspectiveCameraBounds(this Camera camera, float distanceToDesiredBounds,
             float? fieldOfView = null, Vector3? boundsCenter = null)
         {
             //works with overscan settings
@@ -61,6 +62,13 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             var screenBoundsConstrainedHeightSize =
                 new Vector3(sensorViewBoundsSize.y * gameViewAspectRatio, sensorViewBoundsSize.y, boundsDepth); 
 
+            // no physical camera properties so just return the gameViewAspectRatio bounds at the given distance
+            // (this is what screenBoundsConstrainedHeightSize is)
+            if (!camera.usePhysicalProperties)
+            {
+                return new Bounds(boundsCenter ?? camera.transform.position ,screenBoundsConstrainedHeightSize);;
+            }
+            
             //display correct bounds after gate fit
             Vector3 physicalCameraBoundsSize;
             switch (camera.gateFit)
@@ -124,7 +132,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         public static float GetFOVForUnitsOfHeightAtDistance(this Camera camera, float unitsOfHeight, float distance)
         {
             var orthoAtDistance = camera.GetOrthographicSizeAtDistance(distance);
-            var physicalCameraOrthoAtDistance = camera.GetPhysicalCameraBoundsForGateFit(distance).size.y / 2;
+            var physicalCameraOrthoAtDistance = camera.GetPerspectiveCameraBounds(distance).size.y / 2;
             // fov doesn't account for gate fit so measure difference between what ortho at distance should be and what
             // it is with the gate fit applied. Add that difference onto the unitsOfHeight we are tracking to account for it
             var orthoDifference = Mathf.Abs(Mathf.Abs(orthoAtDistance) - Mathf.Abs(physicalCameraOrthoAtDistance));
