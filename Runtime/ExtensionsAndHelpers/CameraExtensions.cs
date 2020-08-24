@@ -111,6 +111,29 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         }
         
         /// <summary>
+        /// Returns the field of view necessary to have <see cref="unitsOfHeight"/> fill the screen height completely
+        /// at the provided <see cref="distance"/>.
+        /// </summary>
+        /// <param name="camera">The camera we will get necessary calculation info from</param>
+        /// <param name="unitsOfHeight">The target units of height we want to fill the screen</param>
+        /// <param name="distance">The distance to the units of height.</param>
+        /// <returns>
+        /// The field of view necessary for <see cref="unitsOfHeight"/> to fill the screen provided the units are
+        /// at the specified <see cref="distance"/>
+        /// </returns>
+        public static float GetFOVForUnitsOfHeightAtDistance(this Camera camera, float unitsOfHeight, float distance)
+        {
+            var orthoAtDistance = camera.GetOrthographicSizeAtDistance(distance);
+            var physicalCameraOrthoAtDistance = camera.GetPhysicalCameraBoundsForGateFit(distance).size.y / 2;
+            // fov doesn't account for gate fit so measure difference between what ortho at distance should be and what
+            // it is with the gate fit applied. Add that difference onto the unitsOfHeight we are tracking to account for it
+            var orthoDifference = Mathf.Abs(Mathf.Abs(orthoAtDistance) - Mathf.Abs(physicalCameraOrthoAtDistance));
+            // orthoDifference is * 2 here because our formula wants the total height and ortho size is only half the height
+            var targetHeight = (unitsOfHeight + orthoDifference * 2);
+            return Mathf.Atan2(targetHeight, distance * 2) * Mathf.Rad2Deg * 2;
+        }
+        
+        /// <summary>
         /// Finds the bounds that match the given criteria given two input bounds 
         /// </summary>
         /// <param name="boundsOne">The first of two bounds we will compare against.</param>
