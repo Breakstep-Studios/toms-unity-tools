@@ -18,6 +18,11 @@ namespace StudioName.Runtime
         private async void Awake()
         {
             await Task.Delay(TimeSpan.FromSeconds(timeTillDestroy));
+            //dirty fix for when our level already destroys the gameobject before the delay is finished
+            if (this == null)
+            {
+                return;
+            }
             Destroy(gameObject);
         }
     }
