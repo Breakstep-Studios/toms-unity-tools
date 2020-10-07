@@ -23,7 +23,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         /// </summary>
         /// <returns>The current deviceID set in the storage KeyChain</returns>
         public static KeyChainUserData GetIosDeviceIDFromKeyChain() {
-#if UNITY_IOS
+#if UNITY_IOS && !UNITY_EDITOR
 				KeyChainUserData userData = JsonUtility.FromJson<KeyChainUserData>(KeyChain.BindGetKeyChainUser());
 				if (userData.uuid == "") {
 					Debug.Log("No deviceId found on keychain...creating new one - " + SystemInfo.deviceUniqueIdentifier);
