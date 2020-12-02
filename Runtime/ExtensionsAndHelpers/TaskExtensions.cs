@@ -25,5 +25,19 @@ namespace StudioName.Runtime.ExtensionAndHelpers
                 throw task.Exception;
             }
         }
+        
+        /// <inheritdoc cref="AsIEnumerator"/>
+        public static IEnumerator AsIEnumerator<T>(this Task<T> task)
+        {
+            while (!task.IsCompleted)
+            {
+                yield return null;
+            }
+
+            if (task.IsFaulted)
+            {
+                throw task.Exception;
+            }
+        }
     }
 }
