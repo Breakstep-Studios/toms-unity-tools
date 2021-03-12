@@ -23,6 +23,7 @@ namespace StudioName.Runtime.EditorGizmos
         private void OnDrawGizmos()
         {
             Gizmos.color = defaultColor;
+            Vector2[] points;
             var cachedTransform = transform;
             switch (collider2D)
             {
@@ -37,18 +38,26 @@ namespace StudioName.Runtime.EditorGizmos
                     for (var i = 0; i < compositeCollider2D.pathCount; ++i)
                     {
                         // see https://answers.unity.com/questions/1456235/how-to-get-specific-path-in-a-composite-collider2d.html
-                        var points = new Vector2[compositeCollider2D.GetPathPointCount(i)];
+                        points = new Vector2[compositeCollider2D.GetPathPointCount(i)];
                         //this method fills the points above 
                         compositeCollider2D.GetPath(i, points);
                         for (var j = 0; j < points.Length; ++j)
                         {
-                            var transformPosition = transform.position;
                             Gizmos.DrawLine((Vector3) points[j],
                                  (Vector3) points[(j + 1) % points.Length]);
                         }
                     }
                     break;
                 case PolygonCollider2D polygonCollider2D:
+                    Gizmos.matrix = Matrix4x4.TRS(transform.position,
+                        cachedTransform.rotation, cachedTransform.lossyScale);
+                    points = polygonCollider2D.points;
+                    for (var j = 0; j < points.Length; ++j)
+                    {
+                        Gizmos.DrawLine((Vector3) points[j],
+                            (Vector3) points[(j + 1) % points.Length]);
+                    }
+                    break;
                 case CapsuleCollider2D capsuleCollider2D:
                 case CircleCollider2D circleCollider2D:
                 case EdgeCollider2D edgeCollider2D:
