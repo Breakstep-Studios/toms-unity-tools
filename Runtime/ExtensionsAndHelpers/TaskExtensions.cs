@@ -39,5 +39,15 @@ namespace StudioName.Runtime.ExtensionAndHelpers
                 throw task.Exception;
             }
         }
+        
+        /// <summary>
+        /// A simple way to ensure our errors are shown in unity
+        /// see http://www.stevevermeulen.com/index.php/2017/09/using-async-await-in-unity3d-2017/ (search WrapErrors())
+        /// </summary>
+        /// <param name="task">The task to wrap errors for</param>
+        public static async void WrapErrors(this Task task)
+        {
+            await task;
+        }
     }
 }
