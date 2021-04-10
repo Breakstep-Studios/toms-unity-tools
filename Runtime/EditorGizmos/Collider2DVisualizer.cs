@@ -22,6 +22,10 @@ namespace StudioName.Runtime.EditorGizmos
         public Collider2D collider2D;
         private void OnDrawGizmos()
         {
+            if (collider2D == null)
+            {
+                return;
+            }
             Gizmos.color = defaultColor;
             Vector2[] points;
             var cachedTransform = transform;
