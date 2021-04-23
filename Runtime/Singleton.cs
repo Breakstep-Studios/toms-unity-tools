@@ -42,8 +42,8 @@ namespace StudioName.Runtime
                 if (!available && !attribute.destroyInstanceOnLevelLoad)
                 {
                     Debug.LogWarning("Singleton Instance \"" + typeName + "\" already destroyed - returning null." +
-                                     "If accessing Singleton in OnDestroy() / OnApplicationQuit() first check if it exists with" +
-                                     "InstanceAvailable property...For more info see Singleton OnDestroy() Summary.");
+                                     "\nIf accessing Singleton in OnDestroy() / OnApplicationQuit() first check if it exists with InstanceAvailable property." +
+                                     "\nFor more info see Singleton OnDestroy() Summary.");
                     return null;
                 }
 
@@ -162,7 +162,7 @@ namespace StudioName.Runtime
         }
 
         /// <summary>
-        /// Ensure Instance != null && Instance is not destroyed in OnDestroy() before another methods OnDestroy() wants to access it.
+        /// Ensure Instance != null and Instance is not destroyed in OnDestroy() before another methods OnDestroy() wants to access it.
         /// </summary>
         public static bool InstanceAvailable
         {
