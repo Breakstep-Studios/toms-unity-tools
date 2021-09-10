@@ -13,7 +13,7 @@
         /// </summary>
         private bool isOfflineHandlingInit = false;
         
-        public void InitOfflineHandling(T offlineDataContainer) {
+        public virtual void InitOfflineHandling(T offlineDataContainer) {
             this.offlineDataContainer = offlineDataContainer;
             isOfflineHandlingInit = true;
         }
