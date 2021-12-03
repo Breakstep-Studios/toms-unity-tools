@@ -18,7 +18,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers
         {
             foreach (Enum value in Enum.GetValues(flags.GetType()))
             {
-                if (flags.HasFlag(value))
+                if (Convert.ToInt32(value) != 0 && flags.HasFlag(value))
                 {
                     yield return (T)value;
                 }
