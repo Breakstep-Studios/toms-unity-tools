@@ -29,6 +29,8 @@ public abstract class MonoService<T> : MonoBehaviour where T : MonoBehaviour {
         instance.name = typeof(T).Name;
         
         var attribute = Attribute.GetCustomAttribute(typeof(T), typeof(MonoServiceAttribute)) as MonoServiceAttribute;
+        //append the object name prefix when instaniation for better organization in project hierarchy
+        instance.name = instance.name.Insert(0, attribute?.objectNamePrefix ?? "");
         if (!attribute?.destroyInstanceOnLevelLoad ?? false) {
             SafeAddDontDestroyOnLoad(instance);
         }      
@@ -63,7 +65,8 @@ public abstract class MonoService<T> : MonoBehaviour where T : MonoBehaviour {
             instance = tempInstance;
         }
         instance.name = typeof(T).Name;
-        
+        //append the object name prefix when instaniation for better organization in project hierarchy
+        instance.name = instance.name.Insert(0, attribute?.objectNamePrefix ?? "");
         if (!attribute.destroyInstanceOnLevelLoad)
         {
             SafeAddDontDestroyOnLoad(instance);
