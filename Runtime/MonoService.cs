@@ -1,6 +1,7 @@
 using System;
 using StudioName.Runtime;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// Base class for creating a service which relies on <see cref="MonoBehaviour"/>.
@@ -29,7 +30,7 @@ public abstract class MonoService<T> : MonoBehaviour where T : MonoBehaviour {
         
         var attribute = Attribute.GetCustomAttribute(typeof(T), typeof(MonoServiceAttribute)) as MonoServiceAttribute;
         if (!attribute?.destroyInstanceOnLevelLoad ?? false) {
-            DontDestroyOnLoad(instance);
+            SafeAddDontDestroyOnLoad(instance);
         }      
 
         return instance;
@@ -53,17 +54,36 @@ public abstract class MonoService<T> : MonoBehaviour where T : MonoBehaviour {
         if (prefab != null) {
             instance = Instantiate(prefab);
         } else {
+            Debug.LogWarning($"GetInstanceFromResources() failed for the paths \n" +
+                             $"> {attribute.ResourcesLoadPathWithTypeName<T>()}\n" +
+                             $"> {attribute.ResourcesLoadPathWithTypeName<T>(true)} \n" +
+                             $"Ensure your GameObject is at either path listed with the given name listed.");
             var tempInstance = new GameObject();
             tempInstance.AddComponent<T>();
             instance = tempInstance;
         }
         instance.name = typeof(T).Name;
         
-        if (!attribute.destroyInstanceOnLevelLoad) {
-            DontDestroyOnLoad(instance);
+        if (!attribute.destroyInstanceOnLevelLoad)
+        {
+            SafeAddDontDestroyOnLoad(instance);
         }
         
         return instance.GetComponent<T>();
+    }
+
+    /// <summary>
+    /// Adds dont destroy on load as long we are not in the editor no in play mode
+    /// </summary>
+    /// <param name="instance">The instance to apply DontDestroyOnLoad too</param>
+    private static void SafeAddDontDestroyOnLoad(Object instance)
+    {
+        //can't call DontDestroyOnLoad here (used to avoid exception when editor testing)
+        if (Application.isEditor && !Application.isPlaying)
+        {
+            return;
+        }
+        DontDestroyOnLoad(instance);
     }
 }
 
@@ -76,8 +96,9 @@ public class MonoServiceAttribute : SingletonAttribute {
     /// <summary>
     /// Add additional info to our <see cref="MonoService{T}"/> classes
     /// </summary>
-    public MonoServiceAttribute(string resourcesLoadPath = "", bool destroyInstanceOnLevelLoad = false) : 
-        base(resourcesLoadPath, destroyInstanceOnLevelLoad) {
+    public MonoServiceAttribute(string resourcesLoadPath = "", bool destroyInstanceOnLevelLoad = false,
+        string objectNamePrefix = "") : 
+        base(resourcesLoadPath, destroyInstanceOnLevelLoad,objectNamePrefix) {
         
     }
 }
