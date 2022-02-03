@@ -14,6 +14,14 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         }
 
         /// <summary>
+        /// Extension for <see cref="string.IsNullOrWhiteSpace"/>. Returns true if the string is null or contains whitespace, false otherwise.
+        /// <remarks>See https://stackoverflow.com/q/18710644/1480728</remarks>
+        /// </summary>
+        public static bool IsNullOrWhiteSpace(this string str) {
+            return string.IsNullOrWhiteSpace(str);
+        }
+        
+        /// <summary>
         /// Converts a camelCase/CamelCase string to a string separated by spaces (camel Case/Camel Case)
         /// </summary>
         /// <param name="str"></param>
