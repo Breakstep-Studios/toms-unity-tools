@@ -22,5 +22,20 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             return string.Concat(str.Select(
                 x => Char.IsUpper(x) ? " " + x : x.ToString())).TrimStart(' ');
         }
+        
+        /// <summary>
+        /// Capitalizes the first letter of a string
+        /// </summary>
+        /// <param name="input">The string to capitalize.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Thrown if our string is null</exception>
+        /// <exception cref="ArgumentException">Throw if our string is empty</exception>
+        public static string FirstCharToUpper(this string input) => input switch
+        {
+            null => throw new ArgumentNullException(nameof(input)),
+            "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
+            _ => input[0].ToString().ToUpper() + input.Substring(1)
+        };
+
     }
 }
