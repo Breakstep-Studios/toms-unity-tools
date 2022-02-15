@@ -38,12 +38,17 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown if our string is null</exception>
         /// <exception cref="ArgumentException">Throw if our string is empty</exception>
-        public static string FirstCharToUpper(this string input) => input switch
+        public static string FirstCharToUpper(this string input)
         {
-            null => throw new ArgumentNullException(nameof(input)),
-            "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
-            _ => input[0].ToString().ToUpper() + input.Substring(1)
-        };
+            switch (input) {
+                case null:
+                    throw new ArgumentNullException(nameof(input));
+                case "":
+                    throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input));
+                default:
+                    return input[0].ToString().ToUpper() + input.Substring(1);
+            }
+        }
 
     }
 }
