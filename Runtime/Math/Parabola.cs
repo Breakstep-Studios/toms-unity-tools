@@ -43,10 +43,30 @@ namespace StudioName.Runtime.Math {
         /// <param name="b">The coefficient of x in the parabolic equation.</param>
         /// <param name="c">The constant term of the parabolic equation.s</param>
         public Parabola(float a, float b, float c) {
-            this.a = a;
-            this.b = b;
-            this.c = c;
-            localVertex = CalculateVertex(a, b, c);
+            SetupParabolaFromCoefficients(a,b,c);
+        }
+
+        /// <summary>
+        /// Setup a parabola from three arbitrary points
+        /// </summary>
+        /// <param name="pOne">The first of three arbitrary points</param>
+        /// <param name="pTwo">The second of three arbitrary points</param>
+        /// <param name="pThree">The third of three arbitrary points</param>
+        /// see https://www.desmos.com/calculator/lac2i0bgum
+        public Parabola(Vector2 pOne, Vector2 pTwo, Vector2 pThree) {
+            var aOne = -Mathf.Pow(pOne.x, 2) + Mathf.Pow(pTwo.x, 2);
+            var bOne = -pOne.x + pTwo.x;
+            var dOne = -pOne.y + pTwo.y;
+            var aTwo = -Mathf.Pow(pTwo.x, 2) + Mathf.Pow(pThree.x, 2);
+            var bTwo = -pTwo.x + pThree.x;
+            var dTwo = -pTwo.y + pThree.y;
+            var bMultiplier = -(bTwo / bOne);
+            var aThree = bMultiplier * aOne + aTwo;
+            var dThree = bMultiplier * dOne + dTwo;
+            var a = dThree / aThree;
+            var b = (dOne - aOne * a) / bOne;
+            var c = pOne.y - (a * Mathf.Pow(pOne.x, 2)) - (b * pOne.x);
+            SetupParabolaFromCoefficients(a, b, c);
         }
         
         /// <summary>
@@ -154,6 +174,17 @@ namespace StudioName.Runtime.Math {
             var c = a * Mathf.Pow(vertex.x, 2) + vertex.y;
             
             return new Tuple<float,float,float>(a,b,c);
+        }
+
+        /// <summary>
+        /// Internally sets up a parabola from coefficients a, b and c.
+        /// <para>Needed for constructors as C# won't allow us to call a base constructor in a constructor body</para>
+        /// </summary>
+        private void SetupParabolaFromCoefficients(float a, float b, float c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            localVertex = CalculateVertex(a, b, c);
         }
         
         /// <summary>
