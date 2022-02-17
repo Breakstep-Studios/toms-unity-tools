@@ -12,6 +12,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         /// <param name="point">Point to test.</param>
         /// <returns>True if contained false otherwise</returns>
         public static bool Contains2D(this Bounds bounds, Vector2 point) {
+            bounds.center = new Vector3(bounds.center.x,bounds.center.y, 0);
             if (bounds.size.z <= 0.1f) {
                 bounds.size += new Vector3(0,0,1);
             }
