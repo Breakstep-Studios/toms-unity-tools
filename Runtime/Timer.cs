@@ -11,6 +11,11 @@ namespace StudioName.Runtime {
         /// Fired when the timer finishes
         /// </summary>
         public event Action OnFinish;
+        /// <summary>
+        /// Fired when our <see cref="elapsedTime"/> changes. Passes the current state of <see cref="elapsedTime"/>
+        /// </summary>
+        public event Action<float> OnTimeChanged;
+        
         private float elapsedTime;
         private float endTime;
         private bool running;
@@ -47,9 +52,11 @@ namespace StudioName.Runtime {
             running = true;
             while (elapsedTime > 0) {
                 elapsedTime -= Time.deltaTime;
+                OnTimeChanged?.Invoke(elapsedTime);
                 yield return null;
             }
             elapsedTime = 0;
+            OnTimeChanged?.Invoke(elapsedTime);
             isFinished = true;
             running = false;
             OnFinish?.Invoke();
@@ -59,6 +66,7 @@ namespace StudioName.Runtime {
             get { return isFinished; }
         }
 
+        //TODO this should actually be called TimeLeft. Too tired to change cause i don't have the time to test after changing
         public float ElapsedTime {
             get { return elapsedTime; }
         }
