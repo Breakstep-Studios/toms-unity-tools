@@ -7,6 +7,21 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
     /// Extends the <see cref="UnityEngine.Camera"/> class with additional functionality
     /// </summary>
     public static class CameraExtensions {
+        /// <summary>
+        /// Returns the bounds of the camera utilizing the camera <see cref="Camera.orthographicSize"/> setting.
+        /// <remarks>If camera is not set to orthographic, will return a default Bounds</remarks>
+        /// </summary>
+        /// <param name="camera">Camera to calculate from</param>
+        /// <returns>The bounds of the orthographic camera</returns>
+        public static Bounds GetOrthographicBounds(this Camera camera) {
+            if (!camera.orthographic) {
+                return default;
+            }
+            var viewingHeight = camera.orthographicSize * 2;
+            var bounds = new Bounds(camera.transform.position,
+                new Vector3(viewingHeight * camera.aspect, viewingHeight, 0));
+            return bounds;
+        }
 
         /// <summary>
         /// Gets the orthographic size of the perspective camera at a given depth
