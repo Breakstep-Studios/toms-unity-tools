@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace StudioName.Runtime.Utility {
 
@@ -9,36 +7,6 @@ namespace StudioName.Runtime.Utility {
     /// </summary>
     /// TODO the methods / properties below should be placed in to more specific categories if one is found
     public static class GenUtil {
-        private const float HALF = 2f;
-        
-        public static float screenHeightInPoints = 2.0f * Camera.main.orthographicSize;
-        public static float screenWidthInPoints = screenHeightInPoints * Camera.main.aspect;
-        public static float HALF_SCREEN_HEIGHT = screenHeightInPoints / HALF;
-        public static float HALF_SCREEN_WIDTH = screenWidthInPoints / HALF;
-
-        public static float GetScreenBottomYPos() {
-            return Camera.main.transform.position.y - HALF_SCREEN_HEIGHT;
-        }
-
-        public static float GetScreenTopYPos() {
-            return Camera.main.transform.position.y + HALF_SCREEN_HEIGHT;
-        }
-
-        public static float GetScreenLeftXPos() {
-            return Camera.main.transform.position.x - HALF_SCREEN_WIDTH;
-        }
-
-        public static float GetScreenRightXPos() {
-            return Camera.main.transform.position.x + HALF_SCREEN_WIDTH;
-        }
-    
-        public static void RecalculateScreenHeightAndWidth() {
-            screenHeightInPoints = 2.0f * Camera.main.orthographicSize;
-            screenWidthInPoints = screenHeightInPoints * Camera.main.aspect;
-            HALF_SCREEN_HEIGHT = screenHeightInPoints / HALF;
-            HALF_SCREEN_WIDTH = screenWidthInPoints / HALF;
-        }
-
         /// <summary>
         /// Input put a value and it will remap it from the range given to the range given
         /// Example say if I have startRange [50,100] and endRange [200,400] and I input 75 (half of 50 to 100) this function will output 300 because it is half of the new range.
