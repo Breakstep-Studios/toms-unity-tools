@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using StudioName.Runtime.Security.IOS;
 
@@ -11,11 +12,53 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         /// <summary>
         /// Prints the current system os, os family, device model, and unique device id
         /// </summary>
-        public static void PrintSystemInfo(){
+        public static void PrintSystemInfo() {
             Debug.Log("Operating System: " + SystemInfo.operatingSystem);
             Debug.Log("Operating System Family: " + SystemInfo.operatingSystemFamily);
             Debug.Log("Device Model: " + SystemInfo.deviceModel);
             Debug.Log("Device Unique Identifier: " + SystemInfo.deviceUniqueIdentifier);
+        }
+        
+        /// <summary>
+        /// Check if the project is symbolic linked by checking if Assets & ProjectSettings folders have Sym Link data.
+        /// <para>When project is not run in Unity Editor will always return false!</para>
+        /// </summary>
+        /// <param name="checkAssets">
+        /// Should we check the Unity Assets folder to determine if the
+        /// project is Symbolic Linked?
+        /// </param>
+        /// <param name="checkProjectSettings">
+        /// Should we check the Unity Project Settigns folder to determine if the project is Symbolic Linked?
+        /// </param>
+        /// <returns>True if testing folders have Sym link data, false otherwise.</returns>
+        public static bool IsProjectSymbolicLinked(bool checkAssets = true, bool checkProjectSettings = true) {
+#if !UNITY_EDITOR
+                return false;
+#endif
+            
+            if (!checkAssets && !checkProjectSettings) {
+                checkAssets = true;
+                checkProjectSettings = true;
+                Debug.LogWarning("CheckAssets & CheckProjectSettings both set to false, defaulting them to true.");
+            }
+            
+            var assetsPathInfo = new FileInfo(Application.dataPath);
+            var assetsIsSymbolic = assetsPathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
+            var projectSettingsPathInfo = new FileInfo(
+                Application.dataPath.Substring(0,Application.dataPath.Length-6) + "ProjectSettings");
+            var projectSettingsIsSymbolic = projectSettingsPathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
+
+            if (!checkAssets)
+            {
+                return projectSettingsIsSymbolic;
+            }
+
+            if (!checkProjectSettings)
+            {
+                return assetsIsSymbolic;
+            }
+            
+            return assetsIsSymbolic && projectSettingsIsSymbolic;
         }
         
         /// <summary>
