@@ -7,6 +7,14 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
     /// </summary>
     public static class StringExtensions {
         /// <summary>
+        /// Compares two <see cref="string" /> s for equality, ignoring case.
+        /// </summary>
+        public static bool EqualsIgnoreCase(this string instance, string value)
+        {
+            return string.Equals(instance, value, StringComparison.OrdinalIgnoreCase);
+        }
+        
+        /// <summary>
         /// Extension for <see cref="string.IsNullOrEmpty"/>. Returns true if the string is null or empty, false otherwise.
         /// </summary>
         public static bool IsNullOrEmpty(this string str) {
