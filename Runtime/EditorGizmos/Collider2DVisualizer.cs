@@ -62,8 +62,12 @@ namespace StudioName.Runtime.EditorGizmos
                             (Vector3) points[(j + 1) % points.Length]);
                     }
                     break;
-                case CapsuleCollider2D capsuleCollider2D:
                 case CircleCollider2D circleCollider2D:
+                    Gizmos.matrix = Matrix4x4.TRS(transform.TransformPoint(circleCollider2D.offset),
+                        cachedTransform.rotation, cachedTransform.lossyScale);
+                    Gizmos.DrawWireSphere(Vector3.zero, circleCollider2D.radius);
+                    break;
+                case CapsuleCollider2D capsuleCollider2D:
                 case EdgeCollider2D edgeCollider2D:
                 case TilemapCollider2D tilemapCollider2D:
                 default:
