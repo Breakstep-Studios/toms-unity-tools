@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace StudioName.Runtime {
     /// <summary>
@@ -41,6 +43,19 @@ namespace StudioName.Runtime {
             mono.StartCoroutine(StarTimer(endTime));
         }
 
+        /// <summary>
+        /// Stops our timer.
+        /// </summary>
+        public void Stop()
+        {
+            if (!running)
+            {
+                Debug.LogWarning("Timer isn't running.");
+                return;
+            }
+            elapsedTime = 0;
+        }
+        
         /// <inheritdoc cref="Start"/>
         /// <returns>IEnumerator for coroutine</returns>
         private IEnumerator StarTimer(float endTime) {
