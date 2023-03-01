@@ -22,7 +22,11 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             {
                 playbackState = playbackState,
                 particles = particles,
-                trails = trails
+                trails = trails,
+                isEmitting = particleSystem.isEmitting,
+                isPlaying = particleSystem.isPlaying,
+                isPaused = particleSystem.isPaused,
+                isStopped = particleSystem.isStopped,
             };
         }
         
@@ -36,6 +40,30 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             particleSystem.SetPlaybackState(snapshot.playbackState);
             particleSystem.SetParticles(snapshot.particles, snapshot.particles.Length);
             particleSystem.SetTrails(snapshot.trails);
+            //if our particle was stopped when we saved our snapshot that means no particles were alive so clear them all
+            //and don't continue below
+            if(snapshot.isStopped)
+            {
+                particleSystem.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+                return;
+            }
+            //if we are paused we are not playing or emitting
+            if (snapshot.isPaused)
+            {
+                particleSystem.Pause();
+                return;
+            }
+            //if we were playing ensure we start things back up again
+            if (snapshot.isPlaying)
+            {
+                particleSystem.Play();
+            }
+            //we may have been playing but called Stop(ParticleSystemStopBehavior.StopEmitting) when we saved the snapshot
+            //bottom line make sure to stop emitting if that's what we were doing when snapshot was saved
+            if (!snapshot.isEmitting)
+            {
+                particleSystem.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+            }
         }
         
         /// <summary>
@@ -55,6 +83,22 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             /// The trails of the particle system snapshot
             /// </summary>
             public ParticleSystem.Trails trails;
+            /// <summary>
+            /// Is the particle system emitting particles. See <see cref="ParticleSystem.isEmitting"/>
+            /// </summary>
+            public bool isEmitting;
+            /// <summary>
+            /// Is the particle system playing. See <see cref="ParticleSystem.isPlaying"/>
+            /// </summary>
+            public bool isPlaying;
+            /// <summary>
+            /// Is the particle system paused. See <see cref="ParticleSystem.isPaused"/>
+            /// </summary>
+            public bool isPaused;
+            /// <summary>
+            /// Is the particle system stopped. See <see cref="ParticleSystem.isStopped"/>
+            /// </summary>
+            public bool isStopped;
         }
     }
 }
