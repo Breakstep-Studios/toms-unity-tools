@@ -40,6 +40,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             particleSystem.SetPlaybackState(snapshot.playbackState);
             particleSystem.SetParticles(snapshot.particles, snapshot.particles.Length);
             particleSystem.SetTrails(snapshot.trails);
+            //TODO the below may be buggy, double check returning to correct play state is working as it's supposed to later
             //if our particle was stopped when we saved our snapshot that means no particles were alive so clear them all
             //and don't continue below
             if(snapshot.isStopped)
@@ -50,13 +51,13 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             //if we are paused we are not playing or emitting
             if (snapshot.isPaused)
             {
-                particleSystem.Pause();
+                particleSystem.Pause(false);
                 return;
             }
             //if we were playing ensure we start things back up again
             if (snapshot.isPlaying)
             {
-                particleSystem.Play();
+                particleSystem.Play(false);
             }
             //we may have been playing but called Stop(ParticleSystemStopBehavior.StopEmitting) when we saved the snapshot
             //bottom line make sure to stop emitting if that's what we were doing when snapshot was saved
