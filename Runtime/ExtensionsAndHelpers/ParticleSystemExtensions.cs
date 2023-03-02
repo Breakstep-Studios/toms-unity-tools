@@ -106,7 +106,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers
         private static ParticleSystemSnapshot SaveSnapshotInternal(this ParticleSystem particleSystem)
         {
             var playbackState = particleSystem.GetPlaybackState();
-            var particles = new ParticleSystem.Particle[particleSystem.main.maxParticles];
+            var particles = new ParticleSystem.Particle[particleSystem.particleCount];
             particleSystem.GetParticles(particles);
             var trails = particleSystem.GetTrails();
             return new ParticleSystemSnapshot
