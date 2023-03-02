@@ -12,7 +12,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers
         /// </summary>
         /// <param name="particleSystem">The particle system we are operating on</param>
         /// <param name="withChildren">If true will also snapshot the child particle systems as well, false will only save this particle system.</param>
-        /// <returns>The snapshot to restore to later</returns>
+        /// <returns>The snapshot/s to restore to later. If withChildren is false only first element will be filled</returns>
         public static ParticleSystemSnapshot[] SaveSnapshot(this ParticleSystem particleSystem, bool withChildren = true)
         {
             //don't save children so only snapshot current particle system
@@ -26,7 +26,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             var snapshots = new ParticleSystemSnapshot[particleSystems.Length];
             for (var i = 0; i < particleSystems.Length; i++)
             {
-                snapshots[i] = particleSystem.SaveSnapshotInternal();
+                snapshots[i] = particleSystems[i].SaveSnapshotInternal();
             }
             
             return snapshots;
@@ -36,7 +36,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers
         /// Restore the particle system to the point in time provided by the snapshots
         /// </summary>
         /// <param name="particleSystem">The particle system we are operating on</param>
-        /// <param name="snapshots">The snapshots in time to restore the particle system (and potentially it's children) to</param>
+        /// <param name="snapshots">The snapshot/s in time to restore the particle system (and potentially it's children) to. If withChildren = false only one particle system need be specified</param>
         /// <param name="withChildren">If true will also restore the children with the snapshots provided, false will only restore this particle system</param>
         public static void RestoreSnapshot(this ParticleSystem particleSystem, ParticleSystemSnapshot[] snapshots, bool withChildren = true)
         {
