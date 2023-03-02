@@ -11,31 +11,67 @@ namespace StudioName.Runtime.ExtensionAndHelpers
         /// Saves this point in time for the particle system in order to restore to this point in time later
         /// </summary>
         /// <param name="particleSystem">The particle system we are operating on</param>
+        /// <param name="withChildren">If true will also snapshot the child particle systems as well, false will only save this particle system.</param>
         /// <returns>The snapshot to restore to later</returns>
-        public static ParticleSystemSnapshot SaveSnapshot(this ParticleSystem particleSystem)
+        public static ParticleSystemSnapshot[] SaveSnapshot(this ParticleSystem particleSystem, bool withChildren = true)
         {
-            var playbackState = particleSystem.GetPlaybackState();
-            var particles = new ParticleSystem.Particle[particleSystem.main.maxParticles];
-            particleSystem.GetParticles(particles);
-            var trails = particleSystem.GetTrails();
-            return new ParticleSystemSnapshot
+            //don't save children so only snapshot current particle system
+            if (!withChildren)
             {
-                playbackState = playbackState,
-                particles = particles,
-                trails = trails,
-                isEmitting = particleSystem.isEmitting,
-                isPlaying = particleSystem.isPlaying,
-                isPaused = particleSystem.isPaused,
-                isStopped = particleSystem.isStopped,
-            };
+                return new[] { SaveSnapshotInternal(particleSystem) };
+            }
+            
+            //we want to save children as well so loop through and snapshot all of them returning them in order snapshotted
+            var particleSystems = particleSystem.GetComponentsInChildren<ParticleSystem>();
+            var snapshots = new ParticleSystemSnapshot[particleSystems.Length];
+            for (var i = 0; i < particleSystems.Length; i++)
+            {
+                snapshots[i] = particleSystem.SaveSnapshotInternal();
+            }
+            
+            return snapshots;
         }
-        
+
+        /// <summary>
+        /// Restore the particle system to the point in time provided by the snapshots
+        /// </summary>
+        /// <param name="particleSystem">The particle system we are operating on</param>
+        /// <param name="snapshots">The snapshots in time to restore the particle system (and potentially it's children) to</param>
+        /// <param name="withChildren">If true will also restore the children with the snapshots provided, false will only restore this particle system</param>
+        public static void RestoreSnapshot(this ParticleSystem particleSystem, ParticleSystemSnapshot[] snapshots, bool withChildren = true)
+        {
+            if (!withChildren)
+            {
+                //throw an exception if we don't at least have one snapshot
+                if (snapshots.Length <= 0)
+                {
+                    throw new System.Exception("No snapshots provided to restore to");
+                }
+                particleSystem.RestoreSnapshotInternal(snapshots[0]);
+                return;
+            }
+            
+            var particleSystems = particleSystem.GetComponentsInChildren<ParticleSystem>();
+            //throw an exception if we don't have the same number of snapshots as particle systems
+            //TODO we may not want to throw an exception here as maybe they only want to restore a subset of particle systems
+            if (snapshots.Length < particleSystems.Length)
+            {
+                throw new System.Exception("Number of snapshots provided does not match number of particle systems.");
+            }
+            
+            //restore all of our child particle system
+            for(var i = 0; i < particleSystems.Length; i++)
+            {
+                particleSystems[i].RestoreSnapshotInternal(snapshots[i]);
+            }
+        }
+
         /// <summary>
         /// Restore the particle system to this point in time
         /// </summary>
         /// <param name="particleSystem">The particle system we are operating on</param>
         /// <param name="snapshot">The snapshot in time to restore the particle system to</param>
-        public static void RestoreSnapshot(this ParticleSystem particleSystem, ParticleSystemSnapshot snapshot)
+        public static void RestoreSnapshotInternal(this ParticleSystem particleSystem, ParticleSystemSnapshot snapshot)
         {
             particleSystem.SetPlaybackState(snapshot.playbackState);
             particleSystem.SetParticles(snapshot.particles, snapshot.particles.Length);
@@ -65,6 +101,24 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             {
                 particleSystem.Stop(false, ParticleSystemStopBehavior.StopEmitting);
             }
+        }
+        
+        private static ParticleSystemSnapshot SaveSnapshotInternal(this ParticleSystem particleSystem)
+        {
+            var playbackState = particleSystem.GetPlaybackState();
+            var particles = new ParticleSystem.Particle[particleSystem.main.maxParticles];
+            particleSystem.GetParticles(particles);
+            var trails = particleSystem.GetTrails();
+            return new ParticleSystemSnapshot
+            {
+                playbackState = playbackState,
+                particles = particles,
+                trails = trails,
+                isEmitting = particleSystem.isEmitting,
+                isPlaying = particleSystem.isPlaying,
+                isPaused = particleSystem.isPaused,
+                isStopped = particleSystem.isStopped,
+            };
         }
         
         /// <summary>
