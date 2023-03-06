@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace StudioName.Runtime.ExtensionAndHelpers
@@ -18,7 +19,10 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             //create a new snapshot
             var animatorSnapshot = new AnimatorSnapshot
             {
-                layerSnapshots = new List<AnimatorLayerSnapshot>()
+                layerSnapshots = new List<AnimatorLayerSnapshot>(),
+                floatParams = new Dictionary<AnimatorControllerParameter, float>(),
+                intParams = new Dictionary<AnimatorControllerParameter, int>(),
+                boolAndTriggerParams = new Dictionary<AnimatorControllerParameter, bool>()
             };
             
             //save all of our animator layer snapshots so we can restore full state of animator later
@@ -32,6 +36,27 @@ namespace StudioName.Runtime.ExtensionAndHelpers
                     normalizedTime = currentAnimatorStateInfo.normalizedTime
                 });
             }
+            
+            //save all of our animator parameters so we can restore them later
+            foreach (var parameter in animator.parameters)
+            {
+                switch (parameter.type)
+                {
+                    case AnimatorControllerParameterType.Float:
+                        animatorSnapshot.floatParams.Add(parameter, animator.GetFloat(parameter.name));
+                        break;
+                    case AnimatorControllerParameterType.Int:
+                        animatorSnapshot.intParams.Add(parameter, animator.GetInteger(parameter.name));                        
+                        break;
+                    case AnimatorControllerParameterType.Bool:
+                        animatorSnapshot.boolAndTriggerParams.Add(parameter, animator.GetBool(parameter.name));
+                        break;
+                    case AnimatorControllerParameterType.Trigger:
+                        goto case AnimatorControllerParameterType.Bool;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
 
             //return the snapshot
             return animatorSnapshot;
@@ -44,6 +69,19 @@ namespace StudioName.Runtime.ExtensionAndHelpers
         /// <param name="animatorSnapshot">The snapshot we want to restore our animator to</param>
         public static void RestoreSnapshot(this Animator animator, AnimatorSnapshot animatorSnapshot)
         {
+            //restore all of our animator parameters
+            foreach (var floatParam in animatorSnapshot.floatParams)
+            {
+                animator.SetFloat(floatParam.Key.name,floatParam.Value);
+            }
+            foreach (var intParam in animatorSnapshot.intParams)
+            {
+                animator.SetInteger(intParam.Key.name,intParam.Value);
+            }
+            foreach (var boolAndTriggerParam in animatorSnapshot.boolAndTriggerParams)
+            {
+                animator.SetBool(boolAndTriggerParam.Key.name,boolAndTriggerParam.Value);
+            }
             //play each of animator layers from where they left off
             foreach (var layerSnapshot in animatorSnapshot.layerSnapshots)
             {
@@ -60,6 +98,18 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             /// A snapshot of all the layers of an animator. Restoring all layers will restore the full state of the animator.
             /// </summary>
             public List<AnimatorLayerSnapshot> layerSnapshots;
+            /// <summary>
+            /// The bool and trigger parameters mapped to their current values for our animator (triggers are just sexy bool params lol)
+            /// </summary>
+            public Dictionary<AnimatorControllerParameter,bool> boolAndTriggerParams;
+            /// <summary>
+            /// The int parameters mapped to their current values for our animator
+            /// </summary>
+            public Dictionary<AnimatorControllerParameter,int> intParams;
+            /// <summary>
+            /// The float parameters mapped to their current values for our animator
+            /// </summary>
+            public Dictionary<AnimatorControllerParameter,float> floatParams;
         }
 
         /// <summary>
