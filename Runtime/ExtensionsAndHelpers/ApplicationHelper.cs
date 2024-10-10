@@ -31,5 +31,10 @@ namespace StudioName.Runtime.ExtensionAndHelpers
 #endif
             }
         }
+
+        /// <summary>
+        /// Returns true if <see cref="ResolvedPlatform"/> is Android or IOS
+        /// </summary>
+        public static bool IsResolvedMobilePlatform => ResolvedPlatform == RuntimePlatform.Android || ResolvedPlatform == RuntimePlatform.IPhonePlayer;
     }
 }
