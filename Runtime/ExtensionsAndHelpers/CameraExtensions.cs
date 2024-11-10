@@ -178,7 +178,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             float CalculateVerticalFOVForHeight(float heightUnits, float distanceToUnitsOfHeight)
             {
                 // Calculate the field of view required for this adjusted height at the given distance
-                return Mathf.Atan2(heightUnits, distanceToUnitsOfHeight) * Mathf.Rad2Deg * 2;
+                return (2 * Mathf.Atan2(heightUnits, distanceToUnitsOfHeight * 2)) * Mathf.Rad2Deg;
             }
         }
 
