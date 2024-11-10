@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace StudioName.Runtime.ExtensionAndHelpers {
@@ -134,7 +134,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             // If physical properties are not enabled, use the default calculation without any adjustments
             if (!camera.usePhysicalProperties)
             {
-                return GetFOVForHeight(unitsOfHeight, distance);
+                return CalculateVerticalFOVForHeight(unitsOfHeight, distance);
             }
             
             // Use the physical sensor's aspect ratio if physical properties are enabled
@@ -147,7 +147,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             switch (camera.gateFit)
             {
                 case Camera.GateFitMode.Horizontal:
-                    // When gate fit is horizontal, adjust the height based on the sensor adjustment
+                    // Horizontal gate fit adjusts the height to ensure the full width is visible
                     adjustedHeight = unitsOfHeight * sensorAdjustment;
                     break;
 
@@ -157,7 +157,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
                     break;
 
                 case Camera.GateFitMode.Fill:
-                    // Fill requires choosing the larger value to make sure the entire screen is filled
+                    // Fill requires choosing the larger value to make sure the entire screen is filled without gaps
                     adjustedHeight = Mathf.Max(unitsOfHeight, unitsOfHeight * sensorAdjustment);
                     break;
 
@@ -172,14 +172,13 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
                     break;
             }
 
-            return GetFOVForHeight(adjustedHeight, distance);
+            return CalculateVerticalFOVForHeight(adjustedHeight, distance);
             
             // Calculate the field of view required to have heightUnits vertically fill the screen at the given distance
-            float GetFOVForHeight(float heightUnits, float distanceToUnitsOfHeight)
+            float CalculateVerticalFOVForHeight(float heightUnits, float distanceToUnitsOfHeight)
             {
                 // Calculate the field of view required for this adjusted height at the given distance
                 return Mathf.Atan2(heightUnits, distanceToUnitsOfHeight) * Mathf.Rad2Deg * 2;
-
             }
         }
 
