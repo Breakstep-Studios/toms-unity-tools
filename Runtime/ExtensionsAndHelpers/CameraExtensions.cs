@@ -117,7 +117,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
 
             return new Bounds(boundsCenter ?? camera.transform.position ,physicalCameraBoundsSize);;
         }
-        
+
         /// <summary>
         /// Returns the field of view necessary to have <see cref="unitsOfHeight"/> fill the screen height completely
         /// at the provided <see cref="distance"/>.
@@ -131,15 +131,58 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         /// </returns>
         public static float GetFOVForUnitsOfHeightAtDistance(this Camera camera, float unitsOfHeight, float distance)
         {
-            var orthoAtDistance = camera.GetOrthographicSizeAtDistance(distance);
-            var physicalCameraOrthoAtDistance = camera.GetPerspectiveCameraBounds(distance).size.y / 2;
-            // fov doesn't account for gate fit so measure difference between what ortho at distance should be and what
-            // it is with the gate fit applied. Add that difference onto the unitsOfHeight we are tracking to account for it
-            var orthoDifference = Mathf.Abs(Mathf.Abs(orthoAtDistance) - Mathf.Abs(physicalCameraOrthoAtDistance));
-            // orthoDifference is * 2 here because our formula wants the total height and ortho size is only half the height
-            var targetHeight = (unitsOfHeight + orthoDifference * 2);
-            return Mathf.Atan2(targetHeight, distance * 2) * Mathf.Rad2Deg * 2;
+            // If physical properties are not enabled, use the default calculation without any adjustments
+            if (!camera.usePhysicalProperties)
+            {
+                return GetFOVForHeight(unitsOfHeight, distance);
+            }
+            
+            // Use the physical sensor's aspect ratio if physical properties are enabled
+            var sensorAspectRatio = camera.sensorSize.x / camera.sensorSize.y;
+            // Adjust to compensate for sensor vs screen aspect ratio differences
+            var sensorAdjustment = sensorAspectRatio / camera.aspect; 
+
+            // Adjust unitsOfHeight based on gate fit and computed values
+            float adjustedHeight;
+            switch (camera.gateFit)
+            {
+                case Camera.GateFitMode.Horizontal:
+                    // When gate fit is horizontal, adjust the height based on the sensor adjustment
+                    adjustedHeight = unitsOfHeight * sensorAdjustment;
+                    break;
+
+                case Camera.GateFitMode.Vertical:
+                    // Vertical gate fit means height should not be adjusted
+                    adjustedHeight = unitsOfHeight;
+                    break;
+
+                case Camera.GateFitMode.Fill:
+                    // Fill requires choosing the larger value to make sure the entire screen is filled
+                    adjustedHeight = Mathf.Max(unitsOfHeight, unitsOfHeight * sensorAdjustment);
+                    break;
+
+                case Camera.GateFitMode.Overscan:
+                    // Overscan chooses the smaller value to make sure everything fits, even if there's padding
+                    adjustedHeight = Mathf.Min(unitsOfHeight, unitsOfHeight * sensorAdjustment);
+                    break;
+
+                default:
+                    // Default to vertical fit if none specified
+                    adjustedHeight = unitsOfHeight;
+                    break;
+            }
+
+            return GetFOVForHeight(adjustedHeight, distance);
+            
+            // Calculate the field of view required to have heightUnits vertically fill the screen at the given distance
+            float GetFOVForHeight(float heightUnits, float distanceToUnitsOfHeight)
+            {
+                // Calculate the field of view required for this adjusted height at the given distance
+                return Mathf.Atan2(heightUnits, distanceToUnitsOfHeight) * Mathf.Rad2Deg * 2;
+
+            }
         }
+
         
         /// <summary>
         /// Finds the bounds that match the given criteria given two input bounds 
