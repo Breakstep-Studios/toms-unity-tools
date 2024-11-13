@@ -136,7 +136,8 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             {
                 return CalculateVerticalFOVForHeight(unitsOfHeight, distance);
             }
-
+            
+            var sensorAspectRatio = camera.sensorSize.x / camera.sensorSize.y;
             var gameViewAspectRatio = (float)Screen.width/Screen.height;
             var reciprocalGameViewAspectRatio = 1 / gameViewAspectRatio;
 
@@ -159,8 +160,19 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
                     adjustedHeight = unitsOfHeight * heightPercentageDifference;
                     break;
                 case Camera.GateFitMode.Fill:
-                    break;
+                    if (sensorAspectRatio > gameViewAspectRatio)
+                    {
+                        goto case Camera.GateFitMode.Vertical;
+                        break;
+                    }
+                    goto case Camera.GateFitMode.Horizontal;
                 case Camera.GateFitMode.Overscan:
+                    if (sensorAspectRatio > gameViewAspectRatio)
+                    {
+                        goto case Camera.GateFitMode.Horizontal;
+                        break;
+                    }
+                    goto case Camera.GateFitMode.Vertical;
                     break;
             }
 
