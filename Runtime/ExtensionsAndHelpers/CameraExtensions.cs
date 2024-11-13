@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace StudioName.Runtime.ExtensionAndHelpers {
@@ -117,7 +117,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
 
             return new Bounds(boundsCenter ?? camera.transform.position ,physicalCameraBoundsSize);;
         }
-        
+
         /// <summary>
         /// Returns the field of view necessary to have <see cref="unitsOfHeight"/> fill the screen height completely
         /// at the provided <see cref="distance"/>.
@@ -131,15 +131,63 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
         /// </returns>
         public static float GetFOVForUnitsOfHeightAtDistance(this Camera camera, float unitsOfHeight, float distance)
         {
-            var orthoAtDistance = camera.GetOrthographicSizeAtDistance(distance);
-            var physicalCameraOrthoAtDistance = camera.GetPerspectiveCameraBounds(distance).size.y / 2;
-            // fov doesn't account for gate fit so measure difference between what ortho at distance should be and what
-            // it is with the gate fit applied. Add that difference onto the unitsOfHeight we are tracking to account for it
-            var orthoDifference = Mathf.Abs(Mathf.Abs(orthoAtDistance) - Mathf.Abs(physicalCameraOrthoAtDistance));
-            // orthoDifference is * 2 here because our formula wants the total height and ortho size is only half the height
-            var targetHeight = (unitsOfHeight + orthoDifference * 2);
-            return Mathf.Atan2(targetHeight, distance * 2) * Mathf.Rad2Deg * 2;
+            // If physical properties are not enabled, use the default calculation without any adjustments
+            if (!camera.usePhysicalProperties)
+            {
+                return CalculateVerticalFOVForHeight(unitsOfHeight, distance);
+            }
+            
+            var sensorAspectRatio = camera.sensorSize.x / camera.sensorSize.y;
+            var gameViewAspectRatio = (float)Screen.width/Screen.height;
+            var reciprocalGameViewAspectRatio = 1 / gameViewAspectRatio;
+
+            // Determine the effective aspect ratio based on Gate Fit mode
+            // see https://docs.unity3d.com/6000.0/Documentation/Manual/PhysicalCameras-GateFit.html
+            // see https://docs.unity3d.com/6000.0/Documentation/Manual/PhysicalCameras-GateFit-Configure.html
+            var adjustedHeight = 0f;
+            switch (camera.gateFit)
+            {
+                case Camera.GateFitMode.Vertical:
+                    adjustedHeight = unitsOfHeight;
+                    break;
+                case Camera.GateFitMode.Horizontal:
+                    // Calculate the game view height that would be normalized to the sensor size
+                    var normalizedGameViewHeight = camera.sensorSize.x * reciprocalGameViewAspectRatio;
+                    // Calculate the percentage difference between the normalized game view height and the sensor size
+                    var heightPercentageDifference = camera.sensorSize.y / normalizedGameViewHeight;
+                    // Adjust the height by the percentage difference so that units of height are scaled correctly.
+                    // This may seem counterintuitive, because units of height seems to be adjusted inverse of what we think it should be.
+                    // remember that decreasing units of height means decreasing fov which means INCREASING the size of things on screen.
+                    // essentially we decrease the height (by the correct scale percentage) to increase the size of the object on screen.
+                    adjustedHeight = unitsOfHeight * heightPercentageDifference;
+                    break;
+                case Camera.GateFitMode.Fill:
+                    if (sensorAspectRatio > gameViewAspectRatio)
+                    {
+                        goto case Camera.GateFitMode.Vertical;
+                        break;
+                    }
+                    goto case Camera.GateFitMode.Horizontal;
+                case Camera.GateFitMode.Overscan:
+                    if (sensorAspectRatio > gameViewAspectRatio)
+                    {
+                        goto case Camera.GateFitMode.Horizontal;
+                        break;
+                    }
+                    goto case Camera.GateFitMode.Vertical;
+                    break;
+            }
+
+            return CalculateVerticalFOVForHeight(adjustedHeight, distance);
+            
+            // Calculate the field of view required to have heightUnits vertically fill the screen at the given distance
+            float CalculateVerticalFOVForHeight(float heightUnits, float distanceToUnitsOfHeight)
+            {
+                // Calculate the field of view required for this adjusted height at the given distance
+                return (2 * Mathf.Atan2(heightUnits, distanceToUnitsOfHeight * 2)) * Mathf.Rad2Deg;
+            }
         }
+
         
         /// <summary>
         /// Finds the bounds that match the given criteria given two input bounds 
