@@ -142,6 +142,8 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             var reciprocalGameViewAspectRatio = 1 / gameViewAspectRatio;
 
             // Determine the effective aspect ratio based on Gate Fit mode
+            // see https://docs.unity3d.com/6000.0/Documentation/Manual/PhysicalCameras-GateFit.html
+            // see https://docs.unity3d.com/6000.0/Documentation/Manual/PhysicalCameras-GateFit-Configure.html
             var adjustedHeight = 0f;
             switch (camera.gateFit)
             {
