@@ -136,39 +136,31 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             {
                 return CalculateVerticalFOVForHeight(unitsOfHeight, distance);
             }
-            
-            // Use the physical sensor's aspect ratio if physical properties are enabled
-            var sensorAspectRatio = camera.sensorSize.x / camera.sensorSize.y;
-            // Adjust to compensate for sensor vs screen aspect ratio differences
-            var sensorAdjustment = sensorAspectRatio / camera.aspect; 
 
-            // Adjust unitsOfHeight based on gate fit and computed values
-            float adjustedHeight;
+            var gameViewAspectRatio = (float)Screen.width/Screen.height;
+            var reciprocalGameViewAspectRatio = 1 / gameViewAspectRatio;
+
+            // Determine the effective aspect ratio based on Gate Fit mode
+            var adjustedHeight = 0f;
             switch (camera.gateFit)
             {
-                case Camera.GateFitMode.Horizontal:
-                    // Horizontal gate fit adjusts the height to ensure the full width is visible
-                    adjustedHeight = unitsOfHeight * sensorAdjustment;
-                    break;
-
                 case Camera.GateFitMode.Vertical:
-                    // Vertical gate fit means height should not be adjusted
                     adjustedHeight = unitsOfHeight;
                     break;
-
+                case Camera.GateFitMode.Horizontal:
+                    // Calculate the game view height that would be normalized to the sensor size
+                    var normalizedGameViewHeight = camera.sensorSize.x * reciprocalGameViewAspectRatio;
+                    // Calculate the percentage difference between the normalized game view height and the sensor size
+                    var heightPercentageDifference = camera.sensorSize.y / normalizedGameViewHeight;
+                    // Adjust the height by the percentage difference so that units of height are scaled correctly.
+                    // This may seem counterintuitive, because units of height seems to be adjusted inverse of what we think it should be.
+                    // remember that decreasing units of height means decreasing fov which means INCREASING the size of things on screen.
+                    // essentially we decrease the height (by the correct scale percentage) to increase the size of the object on screen.
+                    adjustedHeight = unitsOfHeight * heightPercentageDifference;
+                    break;
                 case Camera.GateFitMode.Fill:
-                    // Fill requires choosing the larger value to make sure the entire screen is filled without gaps
-                    adjustedHeight = Mathf.Max(unitsOfHeight, unitsOfHeight * sensorAdjustment);
                     break;
-
                 case Camera.GateFitMode.Overscan:
-                    // Overscan chooses the smaller value to make sure everything fits, even if there's padding
-                    adjustedHeight = Mathf.Min(unitsOfHeight, unitsOfHeight * sensorAdjustment);
-                    break;
-
-                default:
-                    // Default to vertical fit if none specified
-                    adjustedHeight = unitsOfHeight;
                     break;
             }
 
