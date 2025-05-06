@@ -52,5 +52,40 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
                 worldPositionBoundsSize);
         }
         
+        /// <summary>
+        /// Calculates the shortest distance between the outer surfaces of two 
+        /// axis-aligned bounding boxes (<see cref="Bounds"/>).
+        /// </summary>
+        /// <param name="fromBounds">The bounds to measure the distance from.</param>
+        /// <param name="toBounds">The bounds to measure the distance to.</param>
+        /// <returns>The shortest distance from one bounds to the other (0 if they overlap)</returns>
+        public static float GetDistance(this Bounds fromBounds, Bounds toBounds)
+        {
+            // Helper to find the gap between two intervals on one axis (0 if overlapping).
+            static float CalculateGapAlongAxis(float minA, float maxA, float minB, float maxB)
+            {
+                // A is before B
+                if (maxA < minB)
+                {
+                    return minB - maxA;
+                }
+                // B is before A
+                if (maxB < minA)
+                {
+                    return minA - maxB;
+                }
+                // Overlap or touch
+                return 0f;
+            }
+
+            // Calculate gap per axis.
+            var gapX = CalculateGapAlongAxis(fromBounds.min.x, fromBounds.max.x, toBounds.min.x, toBounds.max.x);
+            var gapY = CalculateGapAlongAxis(fromBounds.min.y, fromBounds.max.y, toBounds.min.y, toBounds.max.y);
+            var gapZ = CalculateGapAlongAxis(fromBounds.min.z, fromBounds.max.z, toBounds.min.z, toBounds.max.z);
+
+            // Combine axis gaps into a vector and return its length (magnitude).
+            return new Vector3(gapX, gapY, gapZ).magnitude;
+        }
+        
     }
 }
