@@ -40,6 +40,31 @@ namespace StudioName.Runtime.ExtensionAndHelpers
 
             return foundGameObjects.ToArray();
         }
+        
+        /// <summary>
+        /// Returns all GameObjects in the scene with the given layer in a deterministic order.
+        /// <remarks>This method is useful when loading a scene twice and wanting to compare objects against one another.</remarks>
+        /// <example>
+        /// Load scene and call <see cref="FindGameObjectsWithLayerDeterministicOrder"/>[0] reload scene and call <see cref="FindGameObjectsWithLayerDeterministicOrder"/>[0]
+        /// Given the above example [0].transform.position == [0].transform.position (same object different instance)
+        /// </example>
+        /// </summary>
+        /// <param name="layer">The layer we will filter for</param>
+        /// <returns>A deterministically ordered list of the gameobjects in the scene</returns>
+        /// TODO not sure I like the way this method looks.
+        /// TODO GetRootGameObjects doesn't specifically state that the list is deterministically ordered, this may be a problem later!
+        public static GameObject[] FindGameObjectsWithLayerDeterministicOrder(string layer)
+        {
+            var rootGameObjects = SceneManager.GetActiveScene().GetRootGameObjects().ToList();
+            var foundGameObjects = new List<GameObject>();
+
+            foreach (var rootGameObject in rootGameObjects)
+            {
+                TraverseChildrenByLayer(rootGameObject.transform, layer, foundGameObjects);
+            }
+
+            return foundGameObjects.ToArray();
+        }
 
         /// <summary>
         /// Allows us to recursively traverse all children of a given <see cref="Transform"/> and add any GameObjects with the given tag to a list
@@ -59,6 +84,25 @@ namespace StudioName.Runtime.ExtensionAndHelpers
             foreach (Transform child in parent)
             {
                 TraverseChildren(child, tag, foundGameObjects);
+            }
+        }
+        
+        /// <summary>
+        /// Allows us to recursively traverse all children of a given <see cref="Transform"/> and add any GameObjects with the given layer to a list
+        /// </summary>
+        /// <param name="parent">the transform parent to recurse</param>
+        /// <param name="layer">the layer we will add gameobjects for</param>
+        /// <param name="foundGameObjects">the list of found gameobjects</param>
+        private static void TraverseChildrenByLayer(Transform parent, string layer, List<GameObject> foundGameObjects)
+        {
+            if (parent.gameObject.layer == LayerMask.NameToLayer(layer))
+            {
+                foundGameObjects.Add(parent.gameObject);
+            }
+
+            foreach (Transform child in parent)
+            {
+                TraverseChildrenByLayer(child, layer, foundGameObjects);
             }
         }
     }
