@@ -16,7 +16,7 @@ namespace StudioName.Runtime.ExtensionAndHelpers
         public static void EnableKinematicAndStop(this Rigidbody2D rigidbody2D)
         {
             rigidbody2D.isKinematic = true;
-            rigidbody2D.velocity = Vector2.zero;
+            rigidbody2D.linearVelocity = Vector2.zero;
         }
     }
 }
