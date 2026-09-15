@@ -1,6 +1,7 @@
 using System.IO;
 using UnityEngine;
 using StudioName.Runtime.Security.IOS;
+using System;
 
 namespace StudioName.Runtime.ExtensionAndHelpers {
 
@@ -85,6 +86,27 @@ namespace StudioName.Runtime.ExtensionAndHelpers {
             return userData;
 #endif
         }
+
+		/// <summary>
+		/// Either retrieves a previously generated deviceId from PlayerPrefs, or if one isn't present, generates one, saves it and returns it.
+		/// <para>Use on platforms where <see cref="SystemInfo.deviceUniqueIdentifier"/> is unavailable or unstable (e.g. WebGL).</para>
+		/// </summary>
+		/// <returns>The deviceId stored in PlayerPrefs</returns>
+		public static string GetDeviceIdFromPlayerPrefs() {
+		    // Changing this key after release will orphan existing ids.
+		    const string deviceIdPlayerPrefsKey = "StudioName.DeviceId";
+		
+		    var deviceId = PlayerPrefs.GetString(deviceIdPlayerPrefsKey, "");
+		    if (string.IsNullOrEmpty(deviceId)) {
+		        deviceId = Guid.NewGuid().ToString("N");
+		        PlayerPrefs.SetString(deviceIdPlayerPrefsKey, deviceId);
+		        PlayerPrefs.Save();
+		        Debug.Log("No deviceId found in PlayerPrefs...creating new one - " + deviceId);
+		    } else {
+		        Debug.Log("DeviceId found - " + deviceId);
+		    }
+		    return deviceId;
+		}
 	    
     }
 
